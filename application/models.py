@@ -19,7 +19,7 @@ class StudentProfile(db.Model):
     department = db.Column(db.String(50))
     resume_link = db.Column(db.String(255))
     applications = db.relationship('Application', backref='student', lazy=True)
-    placements = db.relationship('Placement',backref='student',lazy='True')
+    placements = db.relationship('Placement',backref='student',lazy=True)
 
 class CompanyProfile(db.Model):
     __tablename__ = 'company_profiles'
@@ -49,7 +49,7 @@ class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student_profiles.id'), nullable=False)
     drive_id = db.Column(db.Integer, db.ForeignKey('placement_drives.id'), nullable=False)
-    application_date = db.Column(db.DateTime,datetime.utcnow)
+    application_date = db.Column(db.DateTime,default=datetime.utcnow)
     status = db.Column(db.String(20), default="Applied") 
 
 class Placement(db.Model):

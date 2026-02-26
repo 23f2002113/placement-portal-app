@@ -20,9 +20,9 @@ from application.controllers import *
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        Admin=User.query.filter_by(role="Admin").first()
+        Admin=User.query.filter_by(role="admin").first()
         if Admin is None:
-            Admin=User(username="Admin1",email="admin@user.com",password="1234",role="Admin")
+            Admin=User(username="Admin1",email="admin@user.com",password="1234",role="admin")
             db.session.add(Admin)
             db.session.commit()
     app.run()
