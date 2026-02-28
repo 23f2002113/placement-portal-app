@@ -14,6 +14,7 @@
     width: 60%;
     height: 800px;
     margin: auto;
+    background-color:azure;
     
 }
 
@@ -25,4 +26,5 @@
     margin-top: 200px;
     border-radius: 5px;
     padding: 10px;
+    background-color:beige
 }
