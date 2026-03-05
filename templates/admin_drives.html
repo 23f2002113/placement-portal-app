@@ -16,6 +16,7 @@
         #content {
             padding: 20px;
         }
+
     </style>
 </head>
 
@@ -25,23 +26,22 @@
             <div id="form-body">
                 <nav class="navbar navbar-expand-lg bg-body-tertiary">
                 <div class="container-fluid">
-                    <h2>Drive 1</h1>
+                    <h2>Drive {{drive.id}}</h1>
                 </div>
                 </nav>
                 <div id="content">
-                    <strong>Company Name:</strong> Google<br>
+                    <strong>Company Name:</strong> {{drive.company.company_name}}<br>
                     <br>
-                    <strong>Job Title:</strong> Senior Software Deeloper<br>
+                    <strong>Job Title:</strong> {{drive.job_title}}<br>
                     <br>
-                    <strong>Job Description:</strong> an experienced developer who leads projects,designs scalable
-                    systems.<br>
+                    <strong>Job Description:</strong>{{drive.job_description}}<br>
                     <br>
-                    <strong>Salary:</strong> 600000<br>
+                    <strong>Salary:</strong> {{drive.salary_package}}<br>
                     <br>
-                    <strong>Location:</strong> Chennai<br>
+                    <strong>Location:</strong> {{drive.location}}<br>
                     <br>
                     <div class="text-center">
-                        <a href="#" class="'btn btn-primary"> Go Back</a>
+                        <a href="/admin" class="'btn btn-primary"> Go Back</a>
                     </div>
                 </div>
             </div>
@@ -50,3 +50,4 @@
 </body>
 
 </html>
+

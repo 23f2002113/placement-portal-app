@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -10,7 +10,8 @@
         a {
             font-size: 25px;
         }
-        nav{
+
+        nav {
             border: 1px solid black;
             margin-top: 10px;
         }
@@ -20,26 +21,32 @@
             width: 90%;
             margin-left: 40px;
         }
+
         #content1 {
             max-height: 100px;
             padding-top: 10px;
         }
-        #content2{
+
+        #content2 {
             max-height: 100px;
             padding-top: 20px;
         }
-        #content3{
+
+        #content3 {
             max-height: 100px;
             padding-top: 30px;
         }
+
         #content4 {
             max-height: 100px;
             padding-top: 40px;
         }
+
         #content5 {
             max-height: 100px;
             padding-top: 120px;
         }
+
         th,
         td {
             font-size: 20px;
@@ -52,52 +59,101 @@
         <div id="canvas">
             <nav class="navbar navbar-expand-lg bg-body-tertiary">
                 <div class="container-fluid">
-                    <h2>Welcome Admin</h2>
+                    <h2>Welcome {{this_user.username}}</h2>
                 </div>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Student,organizations" aria-label="Search"/>
-                         <button class="btn btn-outline-success" type="submit">Search</button>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/login">Logout</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex" action="/search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                            name="search">
+                        <select class="form-select me-2" aria-label="Default select example" name="key">
+                            <option selected>select</option>
+                            <option value="student">Student</option>
+                            <option value="company">Company</option>
+                        </select>
+                        <input class="btn btn-outline-success" type="submit" value="Search">
                     </form>
                 </div>
             </nav>
+            <div class="row mb-4">
+                    <div class="col-md-2">
+                        <div class="card text-center p-2 bg-primary text-white">
+                            <h5>{{stats.companies}}</h5><small>Companies</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center p-2 bg-success text-white">
+                            <h5>{{stats.students}}</h5><small>Students</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center p-2 bg-warning">
+                            <h5>{{stats.drives}}</h5><small>Drives</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center p-2 bg-info text-white">
+                            <h5>{{stats.applications}}</h5><small>Applications</small>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center p-2 bg-dark text-white">
+                            <h5>{{stats.placements}}</h5><small>Placements</small>
+                        </div>
+                    </div>
+                </div>
             <div id="content1">
                 <h2 style="padding-left: 30px;">Registered Companies</h2>
                 <table class="table ">
+                    {% for company in all_companies %}
                     <tr>
-                        <td class="col-8">Company 1</td>
-                        <td class="text-center"> <a href="#" class="btn btn-danger">Blacklist</a></td>
+                        <td>{{company.id}}</td>
+                        <td>{{company.user_id}}</td>
+                        <td>{{company.company_name}}</td>
+                        <td>{{company.website}}</td>
+                        <td>{{company.hr_contact}}</td>
+                        <td><a href="/admin/company/{{company.id}}/blacklist"
+                                class="btn btn-sm btn-danger">Blacklist</a></td>
                     </tr>
-                    <tr style="display:none">
-                        <td class="col-8">Company 2</td>
-                        <td class="text-center"> <a href="#" class="btn btn-danger">Blacklist</a></td>
-                    </tr>
+                    {% endfor %}
                 </table>
             </div>
             <div id="content2">
                 <h2 style="padding-left: 30px;">Registered Students</h2>
                 <table class="table ">
+                    {% for student in all_students %}
                     <tr>
-                        <td class="col-8">Mr. Nikhil</td>
-                        <td class="text-center"> <a href="#" class="btn btn-danger">Blacklist</a></td>
+                        <td>{{student.id}}</td>
+                        <td>{{student.user_id}}</td>
+                        <td>{{student.name}}</td>
+                        <td>{{student.roll_no}}</td>
+                        <td>{{student.department}}</td>
+                        <td class="text-center"> <a href="/admin/student/blacklist/{{student.id}}"
+                                class="btn btn-danger">Blacklist</a></td>
                     </tr>
-                    <tr style="display:none">
-                        <td class="col-8">Mr. adobe</td>
-                        <td class="text-center"> <a href="#" class="btn btn-danger">Blacklist</a></td>
-                    </tr>
+                    {% endfor %}
                 </table>
             </div>
             <div id="content3">
                 <h2 style="padding-left: 30px;">Company Applications</h2>
                 <table class="table ">
+                    {% for comp in pending_companies %}
                     <tr>
-                        <td class="col-8">Company 3</td>
-                        <td class="text-center"> <a href="#" class="btn btn-success">Approve</a></td>
+                        <td>{{comp.id}}</td>
+                        <td>{{comp.user_id}}</td>
+                        <td>{{comp.company_name}}</td>
+                        <td>{{comp.website}}</td>
+                        <td>{{comp.hr_contact}}</td>
+                        <td class="text-end">
+                            <a href="/admin/company/{{comp.id}}/approve" class="btn btn-sm btn-success">Approve</a>
+                            <a href="/admin/company/{{comp.id}}/reject" class="btn btn-sm btn-danger">Reject</a>
+                        </td>
                     </tr>
-                    <tr style="display:none">
-                        <td class="col-8">Company 4</td>
-                        <td class="text-center"> <a href="#" class="btn btn-success">Approve</a></td>
-                    </tr>
+                    {% endfor %}
                 </table>
             </div>
             <div id="content4">
@@ -105,21 +161,49 @@
                 <table class="table">
                     <thead class="text-center">
                         <tr>
-                            <th>Sr No.</th>
                             <th>Drive Name</th>
-                            <th >Actions</th>
-                            
+                            <th>Drive C_Name</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
+                        {% for drive in ongoing_drives %}
                         <tr>
-                            <td>1001.</td>
-                            <td> Drive 1</td>
-                            <td >
-                                <a href="#" class="btn btn-primary">View Details</a>
-                                <a href="#" class="btn btn-success">Mark as complete</a>
+                            <td>Drive {{drive.id}}</td>
+                            <td>{{drive.company.company_name}}</td>
+                            <td>{{drive.job_title}}</td>
+                            <td>
+                                <a href="/admin/view_drive/{{drive.id}}" class="btn btn-primary">View Details</a>
+                                <a href="/admin/drive/{{drive.id}}/complete" class="btn btn-success">Mark as
+                                    complete</a>
                             </td>
                         </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2 style="padding-left: 30px;">Pending Drives</h2>
+                <table class="table">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Drive Name</th>
+                            <th>Drive C_Name</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for drive in pending_drives %}
+                        <tr>
+                            <td>Drive {{drive.id}}</td>
+                            <td>{{drive.company.company_name}}</td>
+                            <td>{{drive.job_title}}</td>
+                            <td>
+                                <a href="/admin/view_drive/{{drive.id}}/approve" class="btn btn-success">Approve</a>
+                                <a href="/admin/drive/{{drive.id}}/reject" class="btn btn-danger">Reject</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -130,33 +214,316 @@
                         <tr>
                             <th>Sr No.</th>
                             <th>Name</th>
-                            <th>Drive </th>
-                            <th>Company</th>
+                            <th>Drive ID</th>
+                            <th>Company Name</th>
                             <th>Date</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-center">
+                        {% for app in all_apps %}
                         <tr>
-                            <td>1.</td>
-                            <td>Mr. Nikhil</td>
-                            <td> Drive 1</td>
-                            <td>Company 1</td>
-                            <td>07-02-2026</td>
-                            <td> <a href="#" class="btn btn-primary">View </a></td>
+                            <td>{{app.id}}</td>
+                            <td>{{app.student.name}}</td>
+                            <td>{{app.drive.id}}</td>
+                            <td>{{app.drive.company.company_name}}</td>
+                            <td>{{app.application_date}}</td>
+                            <td> <a href="/admin/view_application/<int:id>" class="btn btn-primary">View Details</a>
+                            </td>
                         </tr>
-                        <tr style="display: none;">
-                            <td>2.</td>
-                            <td>Mr. adobe</td>
-                            <td> Drive 2</td>
-                            <td>Company 2</td>
-                            <td>09-02-2026</td>
-                            <td> <a href="#" class="btn btn-primary">View </a></td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        #canvas {
+            padding: 20px;
+            background-color: white;
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-section {
+            margin-bottom: 50px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .navbar {
+            border-bottom: 2px solid #343a40;
+            margin-bottom: 30px;
+        }
+
+        th {
+            font-size: 18px;
+            background-color: #f1f1f1;
+        }
+
+        td {
+            font-size: 16px;
+        }
+
+        h2 {
+            border-left: 5px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <div id="canvas" class="container">
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <a class="navbar-brand" href="#">Welcome, {{this_user.username}}</a>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-danger font-weight-bold" href="/login">Logout</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex" action="/search">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"
+                            name="search">
+                        <select class="form-select me-2" aria-label="Default select example" name="key">
+                            <option selected>select</option>
+                            <option value="student">Student</option>
+                            <option value="company">Company</option>
+                        </select>
+                        <input class="btn btn-outline-success" type="submit" value="Search">
+                    </form>
+                </div>
+            </nav>
+
+
+            <div class="row mb-4 justify-content-center">
+                <div class="col-md-2">
+                    <div class="card text-center p-2 bg-primary text-white">
+                        <h5>{{stats.companies}}</h5><small>Companies</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center p-2 bg-success text-white">
+                        <h5>{{stats.students}}</h5><small>Students</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center p-2 bg-warning">
+                        <h5>{{stats.drives}}</h5><small>Drives</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center p-2 bg-info text-white">
+                        <h5>{{stats.applications}}</h5><small>Applications</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="card text-center p-2 bg-dark text-white">
+                        <h5>{{stats.placements}}</h5><small>Placements</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2>Registered Companies</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Contact</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for company in all_companies %}
+                            <tr>
+                                <td>{{company.id}}</td>
+                                <td>{{company.user_id}}</td>
+                                <td>{{company.company_name}}</td>
+                                <td>{{company.website}}</td>
+                                <td>{{company.hr_contact}}</td>
+                                <td><a href="/admin/company/{{company.id}}/blacklist"
+                                        class="btn btn-sm btn-danger">Blacklist</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div> 
+            </div>
+
+            
+            <div class="table-section">
+                <h2>Registered Students</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Roll No</th>
+                                <th>Department</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in all_students %}
+                            <tr>
+                                <td>{{student.id}}</td>
+                                <td>{{student.user_id}}</td>
+                                <td>{{student.name}}</td>
+                                <td>{{student.roll_no}}</td>
+                                <td>{{student.department}}</td>
+                                <td><a href="/admin/student/blacklist/{{student.id}}"
+                                        class="btn btn-sm btn-danger">Blacklist</a></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="table-section">
+                <h2>Company Applications</h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Website</th>
+                                <th>Hr Contact</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in pending_companies %}
+                            <tr>
+                                <td>{{comp.id}}</td>
+                                <td>{{comp.user_id}}</td>
+                                <td>{{comp.company_name}}</td>
+                                <td>{{comp.website}}</td>
+                                <td>{{comp.hr_contact}}</td>
+                                <td class="text-end">
+                                    <a href="/admin/company/{{comp.id}}/approve"
+                                        class="btn btn-sm btn-success">Approve</a>
+                                    <a href="/admin/company/{{comp.id}}/reject" class="btn btn-sm btn-danger">Reject</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+
+            <div class="table-section">
+                <h2 style="padding-left: 30px;">Ongoing Drives</h2>
+                <table class="table">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Drive Name</th>
+                            <th>Drive C_Name</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for drive in ongoing_drives %}
+                        <tr>
+                            <td>Drive {{drive.id}}</td>
+                            <td>{{drive.company.company_name}}</td>
+                            <td>{{drive.job_title}}</td>
+                            <td>
+                                <a href="/admin/view_drive/{{drive.id}}" class="btn btn-primary">View Details</a>
+                                <a href="/admin/drive/{{drive.id}}/complete" class="btn btn-success">Mark as
+                                    complete</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h2 style="padding-left: 30px;">Pending Drives</h2>
+                <table class="table">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Drive Name</th>
+                            <th>Drive C_Name</th>
+                            <th>Job Title</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for drive in pending_drives %}
+                        <tr>
+                            <td>Drive {{drive.id}}</td>
+                            <td>{{drive.company.company_name}}</td>
+                            <td>{{drive.job_title}}</td>
+                            <td>
+                                <a href="/admin/view_drive/{{drive.id}}/approve" class="btn btn-success">Approve</a>
+                                <a href="/admin/drive/{{drive.id}}/reject" class="btn btn-danger">Reject</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-section">
+                <h2 style="padding-left: 30px;">Student Applications</h2>
+                <table class="table">
+                    <thead class="text-center">
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Name</th>
+                            <th>Drive ID</th>
+                            <th>Company Name</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for app in all_apps %}
+                        <tr>
+                            <td>{{app.id}}</td>
+                            <td>{{app.student.name}}</td>
+                            <td>{{app.drive.id}}</td>
+                            <td>{{app.drive.company.company_name}}</td>
+                            <td>{{app.application_date}}</td>
+                            <td> <a href="/admin/view_application/<int:id>" class="btn btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>

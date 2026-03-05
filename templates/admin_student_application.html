@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 
 <head>
@@ -31,25 +31,25 @@
             <div id="form-body">
                 <h2>Student Application</h2>
                 <div id="content1">
-                    <strong>Student Name:</strong> Mr. Nikhil <br>
+                    <strong>Student Name:</strong> {{application.student.name}} <br>
                     <br>
-                    <strong>Department:</strong> Computer Science and Engineering <br>
+                    <strong>Department:</strong> {{application.student.department}} <br>
                     <br>
-                    <strong>Drive:</strong> Drive 3 <br>
+                    <strong>Drive:</strong> {{application.drive.id}} <br>
                     <br>
-                    <strong>Job Title:</strong> Data Scientist<br>
+                    <strong>Job Title:</strong> {{application.drive.job_title}}<br>
                     <br>
                     <div class="container-fluid">
-                        <a href="#" class="btn btn-info">View Resume</a>
+                        <a href="{{application.student.resume_link}}" class="btn btn-info" target="_blank">View Resume</a>
                         <div class="btn-group">
-                            <a href="#" class="btn btn-info">Back</a>
+                            <a href="/admin" class="btn btn-info">Back</a>
                         </div>
                     </div>
-                </div>
-                
+                </div>  
             </div>
         </div>
     </div>
 </body>
 
-</html>
+</html> 
+

@@ -18,6 +18,7 @@ class StudentProfile(db.Model):
     cgpa = db.Column(db.Float)
     department = db.Column(db.String(50))
     resume_link = db.Column(db.String(255))
+    is_blacklisted = db.Column(db.Boolean, default=False) 
     applications = db.relationship('Application', backref='student', lazy=True)
     placements = db.relationship('Placement',backref='student',lazy=True)
 
@@ -28,7 +29,7 @@ class CompanyProfile(db.Model):
     company_name = db.Column(db.String(100), nullable=False)
     hr_contact = db.Column(db.String(20))
     website = db.Column(db.String(100))
-    approval_status = db.Column(db.String(20), default="Pending") 
+    approval_status = db.Column(db.String(20), default="pending") 
     drives = db.relationship('PlacementDrive', backref='company', lazy=True)
 
 class PlacementDrive(db.Model):
@@ -39,8 +40,9 @@ class PlacementDrive(db.Model):
     job_description = db.Column(db.Text)
     salary_package = db.Column(db.String(50))
     eligibility_criteria = db.Column(db.Text)
+    location = db.Column(db.String(100))
     application_deadline = db.Column(db.DateTime)
-    status = db.Column(db.String(20), default="Pending") 
+    status = db.Column(db.String(20), default="pending") 
     applications = db.relationship('Application', backref='drive', lazy=True)
     placed_students = db.relationship('Placement', backref='drive', lazy=True)
 
