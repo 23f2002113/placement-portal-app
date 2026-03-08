@@ -9,19 +9,24 @@
     <style>
         #form-body {
             width: 400px;
+            min-height: 550px;
+            margin-top: 125px;
         }
 
         a {
-            font-size: 30px;
+            font-size: 18px;
             text-align: start;
         }
-        .dropdown{
+
+        .dropdown {
             text-align: end;
         }
+
         #content1 {
             padding: 20px;
         }
-        #content2{
+
+        #content2 {
             text-align: end;
         }
     </style>
@@ -33,31 +38,28 @@
             <div id="form-body">
                 <h2>Student Application</h2>
                 <div id="content1">
-                    <strong>Student Name:</strong> Mr. Nikhil <br>
+                    <strong>Student Name:</strong> {{application.student.name}} <br>
                     <br>
-                    <strong>Department:</strong> Computer Science and Engineering <br>
+                    <strong>Department:</strong> {{application.student.department}}<br>
                     <br>
-                    <strong>Drive:</strong> Drive 3 <br>
+                    <strong>Drive:</strong> {{application.drive.drive_name}} <br>
                     <br>
-                    <strong>Job Title:</strong> Data Scientist<br>
+                    <strong>Job Title:</strong> {{application.drive.job_title}}<br>
                     <br>
-                    <div class="container-fluid">
-                        <a href="#" class="btn btn-info">View Resume</a>
-                        <div class="btn-group">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Dropdown 
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Shortlist</a></li>
-                                <li><a class="dropdown-item" href="#">Waiting</a></li>
-                                <li><a class="dropdown-item" href="#">Reject</a></li>
-                            </ul>
-                        </div>
+                    <strong>Current Status:</strong> {{ application.status }}<br>
+                    <a href="{{ application.student.resume_link }}" target="_blank" class="btn btn-info btn-block mt-3">View Resume</a><br>
+                    <div class="action-box">
+                        <h5>Update Student Status</h5>
+                        <a href="/company/application/{{ application.id }}/status/Shortlisted"
+                                class="btn btn-warning btn-status">Shortlist</a>
+                        <a href="/company/application/{{ application.id }}/status/Selected"
+                                class="btn btn-success btn-status">Select</a>
+                        <a href="/company/application/{{ application.id }}/status/Rejected"
+                                class="btn btn-danger btn-status">Reject</a>
                     </div>
                 </div>
                 <div id="content2">
-                    <a href="#" class="btn btn-info">Back</a>
+                    <a href="/company/drive/{{ application.drive_id }}/applications" class="btn btn-info">Back</a>
                 </div>
             </div>
         </div>

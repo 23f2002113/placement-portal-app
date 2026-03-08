@@ -1,4 +1,5 @@
 from flask import Flask,render_template,redirect,request,url_for
+from datetime import datetime
 from flask import current_app as app 
 from .models import *
 
@@ -41,6 +42,22 @@ def register():
             new_user=User(username=username,email=email,password=password,role=role)
             db.session.add(new_user)
             db.session.commit()
+            if role == "company":
+                new_profile = CompanyProfile(
+                    user_id=new_user.id, 
+                    company_name=username,
+                    approval_status="pending"
+                )
+                db.session.add(new_profile)
+            
+            elif role == "student":
+                new_profile = StudentProfile(
+                    user_id=new_user.id, 
+                    name=username
+                )
+                db.session.add(new_profile)
+
+            db.session.commit() 
             return redirect("/login")
     return render_template("register.html")
 
@@ -74,13 +91,14 @@ def admin():
 
 @app.route("/admin/company/<int:company_id>/<string:action>")
 def manage_company(company_id, action):
-    company = CompanyProfile.query.get(id=company_id)
+    company = CompanyProfile.query.get(company_id)
     
     if action == "approve":
         company.approval_status = "approved"
     
     elif action == "reject":
-        db.session.delete(company)
+        user = User.query.get(company.user_id)
+        db.session.delete(user)
     
     elif action == "blacklist":
         company.approval_status = "blacklisted"
@@ -95,7 +113,7 @@ def manage_company(company_id, action):
 
 @app.route("/admin/student/blacklist/<int:student_id>")
 def blacklist_student(student_id):
-    student = StudentProfile.query.get(id=student_id)
+    student = StudentProfile.query.get(student_id)
     student.is_blacklisted = True
     
     Application.query.filter_by(student_id=student_id).update({"status": "rejected"})
@@ -105,7 +123,7 @@ def blacklist_student(student_id):
 
 @app.route("/admin/drive/<int:id>/<string:action>")
 def manage_drive(id, action):
-    drive = PlacementDrive.query.get(id=id)
+    drive = PlacementDrive.query.get(id)
     
     if action == "approve":
         drive.status = "approved" 
@@ -119,12 +137,12 @@ def manage_drive(id, action):
 
 @app.route("/admin/view_drive/<int:id>")
 def view_drive(id):
-    drive = PlacementDrive.query.get(id=id)
+    drive = PlacementDrive.query.get(id)
     return render_template("admin_drives.html", drive=drive)
 
 @app.route("/admin/view_application/<int:id>")
 def view_application(id):
-    application = Application.query.get(id=id)
+    application = Application.query.get(id)
     return render_template("admin_student_application.html", application=application)
 
 @app.route("/search")
@@ -146,11 +164,87 @@ def search():
     return render_template("admin_result.html", result=result, key=key)
 
 
-# @app.route("/company/<int:user_id")
-# def company(user_id):
+@app.route("/company/<int:user_id>")
+def company_dashboard(user_id):
+    this_user = User.query.get(user_id)
+    company = CompanyProfile.query.filter_by(user_id=user_id).first()
 
+    if company.approval_status != "approved":
+        return "Your company status are  not approved"
 
-#     return render_template("company_dashboard.html")
+    upcoming_drives = PlacementDrive.query.filter_by(company_id=company.id).filter(PlacementDrive.status != 'completed').all()
+    closed_drives = PlacementDrive.query.filter_by(company_id=company.id, status='completed').all()
+
+    return render_template("company_dashboard.html",this_user=this_user,company=company,upcoming_drives=upcoming_drives,closed_drives=closed_drives)
+
+@app.route("/company/<int:user_id>/create_drive", methods=["GET", "POST"])
+def create_drive(user_id):
+    company = CompanyProfile.query.filter_by(user_id=user_id).first()
+    if request.method == "POST":
+        deadline_obj = None
+        deadline_str = request.form.get("deadline")
+        if deadline_str:
+            deadline_obj = datetime.strptime(deadline_str, '%Y-%m-%d')
+        new_drive = PlacementDrive(
+            company_id=company.id,
+            drive_name=request.form.get("name"),
+            job_title=request.form.get("title"),
+            job_description=request.form.get("description"),
+            salary_package=request.form.get("salary"),
+            location=request.form.get("location"), 
+            eligibility_criteria=request.form.get("criteria"),
+            application_deadline=deadline_obj,
+            status="pending"
+        )
+        db.session.add(new_drive)
+        db.session.commit()
+        return redirect(url_for('company_dashboard', user_id=user_id))
+    
+    return render_template("company_drive_create.html", user_id=user_id)
+
+@app.route("/company/drive/<int:drive_id>/details")
+def view_drive_details(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+    return render_template("company_drive_details.html", drive=drive)
+
+@app.route("/company/drive/<int:drive_id>/applications")
+def view_drive_applications(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+    applications = Application.query.filter_by(drive_id=drive_id).all()
+    return render_template("company_update_application.html", drive=drive, applications=applications)
+
+@app.route("/company/application/<int:app_id>")
+def review_application(app_id):
+    application = Application.query.get(app_id)
+    return render_template("company_student_application.html", application=application)
+
+@app.route("/company/application/<int:app_id>/status/<string:status>")
+def update_application_status(app_id, status):
+    application = Application.query.get(app_id)
+    application.status = status
+    db.session.commit()
+    return redirect(url_for('view_drive_applications', drive_id=application.drive_id))
+
+@app.route("/company/drive/<int:drive_id>/complete")
+def complete_drive(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+    drive.status = "completed"
+    db.session.commit()
+    return redirect(url_for('company_dashboard', user_id=drive.company.user_id))
+
+@app.route("/company/<int:user_id>/edit_profile", methods=["GET", "POST"])
+def edit_company_profile(user_id):
+    company = CompanyProfile.query.filter_by(user_id=user_id).first()
+    
+    if request.method == "POST":
+        company.company_name = request.form.get("company_name")
+        company.website = request.form.get("website")
+        company.hr_contact = request.form.get("hr_contact")
+        
+        db.session.commit()
+        return redirect(url_for('company_dashboard', user_id=user_id))
+    
+    return render_template("company_edit_profile.html", company=company)
 
 # @app.route("/student/<int:user_id")
 # def student(user_id):

@@ -8,6 +8,15 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False) 
+    company_profile = db.relationship('CompanyProfile', 
+                                      backref='user', 
+                                      cascade="all, delete-orphan", 
+                                      uselist=False)
+                                      
+    student_profile = db.relationship('StudentProfile', 
+                                      backref='user', 
+                                      cascade="all, delete-orphan", 
+                                      uselist=False)
 
 class StudentProfile(db.Model):
     __tablename__ = 'student_profiles'
@@ -36,6 +45,7 @@ class PlacementDrive(db.Model):
     __tablename__ = 'placement_drives'
     id = db.Column(db.Integer, primary_key=True)
     company_id = db.Column(db.Integer, db.ForeignKey('company_profiles.id'), nullable=False)
+    drive_name=db.Column(db.String(150),nullable=False)
     job_title = db.Column(db.String(150), nullable=False)
     job_description = db.Column(db.Text)
     salary_package = db.Column(db.String(50))

@@ -26,37 +26,52 @@
             margin-right: 40px;
 
         }
+
+        .text-right {
+            margin-right: 40px;
+            margin-top: 10px;
+        }
+        
     </style>
 </head>
 
 <body>
     <div id="main">
         <div id="canvas">
-            <h2>Update Applications for the Drive</h2>
-            <h3><strong>Job Title:</strong> Data Scientist</h3>
+            <h2>Update Applications for Drive: {{ drive.drive_name }}</h2>
+            <h3><strong>Job Title:</strong> {{ drive.job_title }}</h3>
             <div id="content1">
                 <h3>Received Applications</h3>
-                <table class="table ">
-                    <tr>
-                        <td class="col-8">Student 1</td>
-                        <td> <a href="#" class="btn btn-primary">Review Application</a></td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">Student 2</td>
-                        <td> <a href="#" class="btn btn-primary">Review Application</a></td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">Student 3</td>
-                        <td> <a href="#" class="btn btn-primary">Review Application</a></td>
-                    </tr>
-                    <tr>
-                        <td class="col-8">Student 4</td>
-                        <td> <a href="#" class="btn btn-primary">Review Application</a></td>
-                    </tr>
+                <table class="table table-bordered">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Current Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for app in applications %}
+                        <tr>
+                            <td>{{ app.student.name }}</td>
+                            <td>
+                                 <strong>{{ app.status }}</strong>
+                            </td>
+                            <td>
+                                <a href="/company/application/{{ app.id }}" class="btn btn-primary btn-sm">Review
+                                    Application</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center">No applications received yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
-            <div id="content2">
-                <input type="submit" class="btn btn-info" value="Save">
+            <div class="text-right mt-4">
+                <a href="/company/{{ drive.company.user_id }}" class="btn btn-info">Back to Dashboard</a>
             </div>
         </div>
     </div>
