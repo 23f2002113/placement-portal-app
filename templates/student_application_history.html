@@ -47,13 +47,15 @@
                             <td>{{ app.application_date.strftime('%d-%b-%Y') }}</td>
                             <td>
                                 {% if app.status == 'Selected' or app.status == 'Accepted' %}
-                                    <span class="badge badge-success" style="padding: 8px 15px;">{{ app.status }}</span>
+                                <span class="badge badge-success" style="padding: 8px 15px;">{{ app.status }}</span>
                                 {% elif app.status == 'Rejected' %}
-                                    <span class="badge badge-danger" style="padding: 8px 15px;">{{ app.status }}</span>
+                                <span class="badge badge-danger" style="padding: 8px 15px;">{{ app.status }}</span>
                                 {% elif app.status == 'Shortlisted' %}
-                                    <span class="badge badge-warning" style="padding: 8px 15px;">{{ app.status }}</span>
+                                <span class="badge badge-warning" style="padding: 8px 15px;">{{ app.status }}</span>
+                                {% elif app.status == 'Interview' %}
+                                <span class="badge badge-info" style="padding: 8px 15px;">{{ app.status }}</span>
                                 {% else %}
-                                    <span class="badge badge-primary" style="padding: 8px 15px;">{{ app.status }}</span>
+                                <span class="badge badge-primary" style="padding: 8px 15px;">{{ app.status }}</span>
                                 {% endif %}
                             </td>
                         </tr>

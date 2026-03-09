@@ -83,7 +83,6 @@ def admin():
     pending_drives = PlacementDrive.query.filter_by(status="pending").all()
     
     all_companies = CompanyProfile.query.filter_by(approval_status = "approved").all()
-    # all_companies = CompanyProfile.query.filter(CompanyProfile.approval_status != "blacklisted").all()
     all_students = StudentProfile.query.all()
 
     ongoing_drives = PlacementDrive.query.filter_by(status="approved").all()
@@ -182,21 +181,24 @@ def company_dashboard(user_id):
 @app.route("/company/<int:user_id>/create_drive", methods=["GET", "POST"])
 def create_drive(user_id):
     company = CompanyProfile.query.filter_by(user_id=user_id).first()
+
+    if company.approval_status != "approved":
+        return "Your company not be approved by Admin "
+
     if request.method == "POST":
-        deadline_obj = None
         deadline_str = request.form.get("deadline")
-        if deadline_str:
-            deadline_obj = datetime.strptime(deadline_str, '%Y-%m-%d')
+        deadline_obj = datetime.strptime(deadline_str, '%Y-%m-%d') if deadline_str else None
+        
         new_drive = PlacementDrive(
             company_id=company.id,
             drive_name=request.form.get("name"),
             job_title=request.form.get("title"),
             job_description=request.form.get("description"),
             salary_package=request.form.get("salary"),
-            location=request.form.get("location"), 
+            location=request.form.get("location"),
             eligibility_criteria=request.form.get("criteria"),
             application_deadline=deadline_obj,
-            status="pending"
+            status="pending" 
         )
         db.session.add(new_drive)
         db.session.commit()
@@ -331,19 +333,16 @@ def view_drive_for_student(drive_id):
 @app.route("/student/apply/<int:drive_id>", methods=["POST"])
 def apply_for_drive(drive_id):
     user_id = request.form.get("user_id") 
-
-    if not user_id:
-        return " Please log in again."
-    
     student = StudentProfile.query.filter_by(user_id=user_id).first()
+    drive = PlacementDrive.query.get(drive_id)
 
-    if not student:
-        return "Student profile not found."
+    if drive.status != "approved":
+        return "This drive is not approved "
 
     existing = Application.query.filter_by(student_id=student.id, drive_id=drive_id).first()
     if existing:
-        return "Already applied!"
-        
+        return "You have already applied for this job."
+
     new_app = Application(student_id=student.id, drive_id=drive_id, status="Applied")
     db.session.add(new_app)
     db.session.commit()

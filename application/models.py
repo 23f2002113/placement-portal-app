@@ -8,15 +8,8 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False) 
-    company_profile = db.relationship('CompanyProfile', 
-                                      backref='user', 
-                                      cascade="all, delete-orphan", 
-                                      uselist=False)
-                                      
-    student_profile = db.relationship('StudentProfile', 
-                                      backref='user', 
-                                      cascade="all, delete-orphan", 
-                                      uselist=False)
+    company_profile = db.relationship('CompanyProfile', backref='user', cascade="all, delete-orphan",uselist=False)                              
+    student_profile = db.relationship('StudentProfile', backref='user',  cascade="all, delete-orphan", uselist=False)
 
 class StudentProfile(db.Model):
     __tablename__ = 'student_profiles'
