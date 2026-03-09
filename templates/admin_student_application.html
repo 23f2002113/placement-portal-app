@@ -8,20 +8,8 @@
         integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <style>
         #form-body {
-            width: 400px;
+            margin-top: 150px;
         }
-
-        a {
-            font-size: 30px;
-            text-align: start;
-        }
-        .container-fluid{
-            text-align: center;
-        }
-        #content1 {
-            padding: 20px;
-        }
-        
     </style>
 </head>
 
@@ -40,7 +28,7 @@
                     <strong>Job Title:</strong> {{application.drive.job_title}}<br>
                     <br>
                     <div class="container-fluid">
-                        <a href="{{application.student.resume_link}}" class="btn btn-info" target="_blank">View Resume</a>
+                        <a href="/static/uploads/resumes/{{application.student.resume_link}}" class="btn btn-info" target="_blank">View Resume</a>
                         <div class="btn-group">
                             <a href="/admin" class="btn btn-info">Back</a>
                         </div>

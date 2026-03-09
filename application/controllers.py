@@ -1,7 +1,9 @@
-from flask import Flask,render_template,redirect,request,url_for
+from flask import Flask,render_template,redirect,request,url_for,flash
 from datetime import datetime
 from flask import current_app as app 
 from .models import *
+from werkzeug.utils import secure_filename
+import os
 
 @app.route("/login",methods=["GET","POST"])
 def login():
@@ -222,6 +224,31 @@ def review_application(app_id):
 def update_application_status(app_id, status):
     application = Application.query.get(app_id)
     application.status = status
+    if status == "Selected":
+        existing_placement = Placement.query.filter_by(
+            student_id=application.student_id, 
+            drive_id=application.drive_id
+        ).first()
+
+        if not existing_placement:
+            drive = PlacementDrive.query.get(application.drive_id)
+            
+            new_placement = Placement(
+                student_id=application.student_id,
+                drive_id=application.drive_id,
+                package_offered=drive.salary_package, 
+                selection_date=datetime.utcnow()
+            )
+            db.session.add(new_placement)
+
+    elif status == "Rejected":
+        existing_placement = Placement.query.filter_by(
+            student_id=application.student_id, 
+            drive_id=application.drive_id
+        ).first()
+        if existing_placement:
+            db.session.delete(existing_placement)
+
     db.session.commit()
     return redirect(url_for('view_drive_applications', drive_id=application.drive_id))
 
@@ -246,10 +273,117 @@ def edit_company_profile(user_id):
     
     return render_template("company_edit_profile.html", company=company)
 
-# @app.route("/student/<int:user_id")
-# def student(user_id):
 
-#     return render_template("student_dashboard.html")
+UPLOAD_FOLDER = 'static/uploads/resumes'
+ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route("/student/<int:user_id>")
+def student_dashboard(user_id):
+    this_user = User.query.get(user_id)
+    student = StudentProfile.query.filter_by(user_id=user_id).first()
+    
+    if student.is_blacklisted:
+        return "You have been blacklisted."
+
+    companies = CompanyProfile.query.filter_by(approval_status="approved").all()
+    
+    applied_apps = Application.query.filter_by(student_id=student.id).all()
+    
+    return render_template("student_dashboard.html", this_user=this_user, student=student, companies=companies, applied_apps=applied_apps)
+
+@app.route("/student/<int:user_id>/profile", methods=["GET", "POST"])
+def edit_student_profile(user_id):
+    student = StudentProfile.query.filter_by(user_id=user_id).first()
+    if request.method == "POST":
+        student.name = request.form.get("student_name")
+        student.roll_no = request.form.get("roll_no")
+        student.cgpa = request.form.get("cgpa")
+        student.department = request.form.get("department")
+        
+        file = request.files.get('resume')
+        if file and allowed_file(file.filename):
+            filename = secure_filename(f"resume_{user_id}_{file.filename}")
+            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            student.resume_link = filename 
+            
+        db.session.commit()
+        return redirect(url_for('student_dashboard', user_id=user_id))
+    
+    return render_template("student_edit_profile.html", student=student)
+
+@app.route("/student/company/<int:company_id>")
+def view_company_for_student(company_id):
+    company = CompanyProfile.query.get(company_id)
+    drives = PlacementDrive.query.filter_by(company_id=company_id, status="approved").all()
+    u_id = request.args.get('user_id')
+    return render_template("student_company.html", company=company, drives=drives, student_user_id=u_id)
+
+@app.route("/student/drive/<int:drive_id>")
+def view_drive_for_student(drive_id):
+    drive = PlacementDrive.query.get(drive_id)
+    u_id = request.args.get('user_id') 
+    return render_template("student_drives.html", drive=drive, current_user_id=u_id, student_user_id=u_id)
+
+@app.route("/student/apply/<int:drive_id>", methods=["POST"])
+def apply_for_drive(drive_id):
+    user_id = request.form.get("user_id") 
+
+    if not user_id:
+        return " Please log in again."
+    
+    student = StudentProfile.query.filter_by(user_id=user_id).first()
+
+    if not student:
+        return "Student profile not found."
+
+    existing = Application.query.filter_by(student_id=student.id, drive_id=drive_id).first()
+    if existing:
+        return "Already applied!"
+        
+    new_app = Application(student_id=student.id, drive_id=drive_id, status="Applied")
+    db.session.add(new_app)
+    db.session.commit()
+    return redirect(url_for('student_history', user_id=user_id))
+
+@app.route("/student/history/<int:user_id>")
+def student_history(user_id):
+    student = StudentProfile.query.filter_by(user_id=user_id).first()
+    apps = Application.query.filter_by(student_id=student.id).all()
+    return render_template("student_application_history.html", student=student, apps=apps)
+
+@app.route("/student/search")
+def student_search():
+    search_word = request.args.get("search")
+    key = request.args.get("key") 
+    user_id = request.args.get("user_id")
+    results = []
+
+    if key == "company":
+        results = PlacementDrive.query.join(CompanyProfile).filter(
+            CompanyProfile.company_name.like(f"%{search_word}%"),
+            PlacementDrive.status == "approved"
+        ).all()
+
+    elif key == "position":
+        results = PlacementDrive.query.filter(
+            PlacementDrive.job_title.like(f"%{search_word}%"),
+            PlacementDrive.status == "approved"
+        ).all()
+
+    elif key == "skills":
+        results = PlacementDrive.query.filter(
+            PlacementDrive.eligibility_criteria.like(f"%{search_word}%"),
+            PlacementDrive.status == "approved"
+        ).all()
+
+    return render_template("student_result.html", results=results, key=key, search_word=search_word,user_id=user_id)
+
+    
+
 
 
 
