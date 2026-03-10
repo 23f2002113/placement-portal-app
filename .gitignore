@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 instance/
 mad1.env/
+static/uploads/resumes/
